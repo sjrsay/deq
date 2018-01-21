@@ -47,7 +47,7 @@ succs a (q1,s,q2) =
     -- If there exists q1 --t,i*--> q1' then...
     trans r s q2 (q1,t,LFresh,i,q1') =
       do (_,_,_,j,q2') <- List.find (hasInitTagMode q2 t LFresh) (trns a)
-         let notRng = regs a \\ rng s
+         let notRng = actv a ! q2 \\ rng s
          let find k = List.find (hasInitTagModeIndex q2 t Stored k) (trns a)
          let mkSucc k =
                do (_,_,_,_,q2') <- find k
@@ -67,7 +67,7 @@ bisim a pp =
     initGs :: Auto -> GenSystem
     initGs a = GenSys {
         rep = IntMap.fromList (List.map (\q -> (q, q)) $ stts a),
-        chr = IntMap.fromList (List.map (\q -> (q, regs a)) $ stts a),
+        chr = IntMap.fromList (List.map (\q -> (q, actv a ! q)) $ stts a),
         grp = IntMap.fromList (List.map (\q -> (q, [])) $ stts a),
         ray = IntMap.fromList (List.map (\q -> (q, toPPerm (regs a) 1)) $ stts a)
       }
@@ -84,5 +84,5 @@ bisim a pp =
               Nothing  -> False
               Just pps ->
                 let que' = Seq.fromList pps in
-                let gs'  = extendAll pps gs
+                let gs'  = extend (q1,s,q2) gs
                 in loop (que >< que') gs'

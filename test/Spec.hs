@@ -13,18 +13,10 @@ import qualified Data.List as List
 import Automata 
 import PPerm 
 import GenSystem 
+import Stack
 import Bisim
 
-mkTestCasesFrom = TestList . (++) (List.map TestCase assTests) . map (TestCase . uncurry assertBool)
-
-assTests = [
-    extTest1,
-    extTest2,
-    extTest3,
-    algTest1,
-    algTest2,
-    algTest3
-  ]
+mkTestCasesFrom = TestList . List.map TestCase
 
 main :: IO ()
 main =
@@ -48,35 +40,37 @@ allTests = [
     succsTest3,
     succsTest4,
     chTest1,
-    chTest2
+    chTest2,
+    extTest1,
+    extTest2,
+    extTest3,
+    algTest1,
+    algTest2,
+    algTest3,
+    sumTest1,
+    sumTest2
   ]
 
--- Permutations (0,1) and (2,3) generate the group (), (0,1), (2,3), (0,1)(2,3)
-gs = [p [[0,1]], p [[2,3]]]
+
 
 --------------------------------------------------------------------------------------------
 -- Checking that the supplied PermutationGroup and SchreierSims libraries work as expected
 --
-permEqTest = (
-    "Extensionality of permutations.",
-    p [[0,1],[2,3]] == p [[2,3],[0,1]]
-  )
 
-permGenTestY = (
-    "Permutation generators positive case.",
-    isMem gs (p [[0,1],[2,3]])
-  )
+-- Permutations (0,1) and (2,3) generate the group (), (0,1), (2,3), (0,1)(2,3)
+gs = [p [[0,1]], p [[2,3]]]
 
-permGenTestN = (
-    "Permutation generators negative case.",
-    not $ isMem gs (p [[1,2]])
-  )
----------------------------------------------------------------------------------------------
+permEqTest =
+  assertEqual "" (p [[0,1],[2,3]])  (p [[2,3],[0,1]])
 
-toPPermsTest = (
-    "Permutation to partial permutation conversion.",
-    List.map (toPPerm [0,1,2,3]) (Permutation.elts gs) == pperms
-  )
+permGenTestY =
+  assertBool "" (isMem gs (p [[0,1],[2,3]]))
+
+permGenTestN =
+  assertBool "" (not $ isMem gs (p [[1,2]]))
+
+toPPermsTest =
+  assertEqual "Permutation to partial permutation conversion." (List.map (toPPerm [0,1,2,3]) (Permutation.elts gs)) pperms
   where
     pperms = [
         IntMap.fromList [(0,0),(1,1),(2,2),(3,3)],
@@ -84,6 +78,8 @@ toPPermsTest = (
         IntMap.fromList [(0,1),(1,0),(2,3),(3,2)],
         IntMap.fromList [(0,0),(1,1),(2,3),(3,2)]
       ]
+
+-------------------------------------------------------------------------------------------
 
 -- Checking generating systems work correctly
 
@@ -121,47 +117,31 @@ genSysOpenSubSet = [
   where pperm1 = toPPerm [0,1,2,3]
         pperm3 = toPPerm [2,3]
 
-genSysPartialGens = (
-    "Subset from partialGens contains:\n"
-      ++ show diff12 ++ "\nand omits:\n" ++ show diff21 ++ "\nwhich was not expected.\n"
-      ++ "Expected subset is:\n" ++ show ord2 ++ "\nActual:\n" ++ show ord1 ++ "\n",
-    ord1 == ord2
-  )
+genSysPartialGens =
+  assertEqual "" ord1 ord2
   where ord1 = List.sort (partialGens genSys)
         ord2 = List.sort genSysOpenSubSet
-        diff12 = ord1 \\ ord2
-        diff21 = ord2 \\ ord1
 
-genSysMember1 = (
-    "GenSystem membership 1.",
-    isMember genSys (1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], 2)
-  )
+genSysMember1 =
+  assertBool "" (isMember genSys (1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], 2))
+  
+genSysMember2 =
+  assertBool "" (isMember genSys (2, toPPerm [1,2,3,4] 1, 2))
 
-genSysMember2 = (
-    "GenSystem membership 2.",
-    isMember genSys (2, toPPerm [1,2,3,4] 1, 2)
-  )
+genSysMember3 =
+  assertBool "" (isMember genSys (2, toPPerm [1,2,3,4] (p [[4,1],[2,3]]), 2))
 
-genSysMember3 = (
-    "GenSystem membership 3.",
-    isMember genSys (2, toPPerm [1,2,3,4] (p [[4,1],[2,3]]), 2)
-  )
+genSysMember4 =
+  assertBool "" (isMember genSys (2, toPPerm [0,1,2,3,4] 1, 2))
 
-genSysMember4 = (
-    "GenSystem membership 4.",
-    isMember genSys (2, toPPerm [0,1,2,3,4] 1, 2)
-  )
-
-genSysMember5 = (
-    "GenSystem membership 5.",
-    isMember genSys (2, inverse (IntMap.fromList [(0,4),(1,1),(2,2),(3,3),(4,0)]), 1)
-  )
+genSysMember5 =
+  assertBool "" (isMember genSys (2, inverse (IntMap.fromList [(0,4),(1,1),(2,2),(3,3),(4,0)]), 1))
 
 -----------------------------------------------------------
 -- Testing successor computation
 -----------------------------------------
 
-dra = Auto { regs = [0,1,2,3,4], stts = [1,2,3], trns = ts }
+dra = Auto { regs = [0,1,2,3,4], stts = [1,2,3], actv = av, trns = ts }
   where
     ts = [
         (q1, a, Stored, 0, q1),
@@ -175,45 +155,43 @@ dra = Auto { regs = [0,1,2,3,4], stts = [1,2,3], trns = ts }
         (q3, a, Stored, 2, q3),
         (q3, a, Stored, 3, q3)
       ]
+    av = IntMap.fromList [(q1,[0,1,2,3,4]),(q2,[0,1,2,3,4]),(q3,[0,1,2,3,4])]
 
-succsTest1 = (
-    "Successors 1.",
-    fmap List.nub (succs dra (q3, IntMap.fromList [(2,3),(3,2)], q3))
-      == Just [(q3, IntMap.fromList [(2,3),(3,2)], q3)]
-  )
+succsTest1 =
+  assertEqual "" expected actual
+  where
+    actual   = fmap List.nub (succs dra (q3, IntMap.fromList [(2,3),(3,2)], q3))
+    expected = Just [(q3, IntMap.fromList [(2,3),(3,2)], q3)]
 
-succsTest2 = (
-    "Successors 2.",
-    succs dra (q3, IntMap.fromList [], q3) == Nothing
-  )
+succsTest2 =
+  assertEqual "" Nothing actual
+  where
+    actual = succs dra (q3, IntMap.fromList [], q3)
 
-succsTest3 = (
-      "Successors 3.",
-      succs dra (q3, IntMap.fromList [(1,2),(2,1),(3,3)], q3) == Nothing
-    )
+succsTest3 =
+  assertEqual "" Nothing actual
+  where
+    actual = succs dra (q3, IntMap.fromList [(1,2),(2,1),(3,3)], q3)
 
-succsTest4 = (
-      "Successors 4.",
-      fmap (List.sort . List.nub) (succs dra (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2))
-        == Just (List.sort [
-                    (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2),
-                    (q3, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q3),
-                    (q3, IntMap.fromList [(0,0),(1,1),(2,2),(3,3)], q3),
-                    (q3, IntMap.fromList [(1,1),(2,2),(3,3),(4,4)], q3)
-                  ])
-    )
+succsTest4 = 
+  assertEqual "" expected actual
+  where 
+    actual = fmap (List.sort . List.nub) (succs dra (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2))
+    expected = 
+      Just (List.sort [
+             (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2),
+             (q3, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q3),
+             (q3, IntMap.fromList [(0,0),(1,1),(2,2),(3,3)], q3),
+             (q3, IntMap.fromList [(1,1),(2,2),(3,3),(4,4)], q3)
+           ])
 
-chTest1 = (
-    "Ch 1.",
-    ch [0,1,2,3,4] fs == [2,3]
-  )
+chTest1 =
+  assertEqual "" [2,3] (ch [0,1,2,3,4] fs)
   where
     fs = List.map (\(_,f,_) -> f) genSysOpenSubSet
 
-chTest2 = (
-    "Ch 2.",
-    ch [0,1,2,3,4] fs == [3,4]
-  )
+chTest2 =
+  assertEqual "" [3,4] (ch [0,1,2,3,4] fs)
   where
     fs = [
         IntMap.fromList [(0,0),(1,1),(3,3),(4,4)],
@@ -249,17 +227,19 @@ step3GenSys = GenSys {
 }
 
 extTest1 =
-    extend (q2, (IntMap.fromList [(1,4),(2,2),(3,3),(4,1)]), q2) initGenSys 
-      @?= step1GenSys
-
+  assertEqual "" step1GenSys actual
+  where
+    actual = extend (q2, (IntMap.fromList [(1,4),(2,2),(3,3),(4,1)]), q2) initGenSys 
 
 extTest2 =
-    extend (q1, (IntMap.fromList [(0,0),(1,1),(2,3),(3,2),(4,4)]), q1) step1GenSys 
-      @?= step2GenSys
+  assertEqual "" step2GenSys actual
+  where
+    actual = extend (q1, (IntMap.fromList [(0,0),(1,1),(2,3),(3,2),(4,4)]), q1) step1GenSys 
 
 extTest3 =
-  extend (q1, (IntMap.fromList [(0,4),(1,1),(2,2),(3,3)]), q2) step2GenSys 
-    @?= step3GenSys
+  assertEqual "" step3GenSys actual
+  where
+    actual = extend (q1, (IntMap.fromList [(0,4),(1,1),(2,2),(3,3)]), q2) step2GenSys 
 
 algTest1 =
   assertBool "" $ bisim dra (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2)
@@ -269,6 +249,52 @@ algTest2 =
 
 algTest3 =
   assertBool "" $ bisim dra (q2, IntMap.fromList [(1,4),(2,3),(3,2),(4,1)], q2)
+
+sumTest1 =
+  assertEqual "" expected (fst $ Automata.sum (Stack.lrStack 1) (Stack.lrStack 1))
+  where
+    r = [0]
+    s = [0,1,2,3]
+    a = IntMap.fromList [(0, []), (1, [0]), (2,[]), (3,[0])]
+    t = [(0, 0, LFresh, 0, 1), (1, 1, Stored, 0, 0), (2, 0, LFresh, 0, 3), (3, 1, Stored, 0, 2)]
+    expected =
+      Auto {
+        regs = r, 
+        stts = s, 
+        actv = a,
+        trns = t
+      }
+
+sumTest2 =
+  assertEqual "" expected (fst $ Automata.sum (Stack.lrStack 1) (Stack.rlStack 3))
+  where
+    r = [0,1,2]
+    s = [0,1,2,3,4,5]
+    a = IntMap.fromList [
+          (0, []), 
+          (1, [0]), 
+          (2,[]), 
+          (3,[2]),
+          (4,[1,2]),
+          (5,[0,1,2])
+        ]
+    t = [
+          (0, 0, LFresh, 0, 1), 
+          (1, 1, Stored, 0, 0),  
+          (2, 0, LFresh, 2, 3),
+          (3, 0, LFresh, 1, 4),
+          (4, 0, LFresh, 0, 5), 
+          (3, 1, Stored, 2, 2),
+          (4, 1, Stored, 1, 3), 
+          (5, 1, Stored, 0, 4)
+        ]
+    expected =
+      Auto {
+        regs = r, 
+        stts = s, 
+        actv = a,
+        trns = t
+      }
 
 q1 = 1
 q2 = 2
