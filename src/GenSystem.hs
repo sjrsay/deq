@@ -85,7 +85,7 @@ extend (q1,s,q2) gs | equiv gs q1 q2 =
     -- shrink x
     let ss = s' : List.map (toPPerm x) g in
     let x' = ch x ss in
-    let g' = List.sort $ List.map (toPerm . restrict x') ss in
+    let g' = List.sort $ List.map (toPerm . domRestrict x') ss in
     let ray' = IntMap.foldWithKey (rayUpdate x') IntMap.empty (ray gs) in
     gs { chr = IntMap.insert q x' (chr gs), grp = IntMap.insert q g' (grp gs), ray = ray' }
   where
@@ -98,7 +98,7 @@ extend (q1,s,q2) gs | equiv gs q1 q2 =
     rayUpdate x q' rayq ray' =
       if equiv gs q' q then
         -- q' is also represented by q
-        IntMap.insert q' (restrict x rayq) ray'
+        IntMap.insert q' (domRestrict x rayq) ray'
       else
         IntMap.insert q' rayq ray'
 
@@ -106,7 +106,7 @@ extend (q1,s,q2) gs | not (equiv gs q1 q2) =
   let rep' = IntMap.map (\q -> if q == q1' || q == q2' then q1' else q) (rep gs) in
   let h    = List.map (toPPerm x1) g1 ++ List.map (\ge -> s1 `compseq` toPPerm x2 ge `compseq` s2) g2 in
   let x    = ch x1 h in
-  let g'   = List.sort $ List.map (toPerm . restrict x) h in
+  let g'   = List.sort $ List.map (toPerm . domRestrict x) h in
   let grp' = IntMap.insert q1' g' (IntMap.delete q2' (grp gs)) in
   let chr' = IntMap.insert q1' x (IntMap.delete q2' (chr gs)) in
   let ray' = IntMap.foldWithKey (rayUpdate x) IntMap.empty (ray gs) in
@@ -124,11 +124,11 @@ extend (q1,s,q2) gs | not (equiv gs q1 q2) =
     rayUpdate x q rayq ray' =
       let q' = rep gs ! q in
       if q' == q1' then
-        IntMap.insert q (restrict x rayq) ray'
+        IntMap.insert q (domRestrict x rayq) ray'
       else if q' == q2' then
         let ray'q =
              (ray gs ! q1) `compseq` s `compseq` inverse (ray gs ! q2) `compseq` rayq
-        in IntMap.insert q (restrict x ray'q) ray'
+        in IntMap.insert q (domRestrict x ray'q) ray'
       else
         IntMap.insert q rayq ray'
 

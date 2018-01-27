@@ -28,5 +28,5 @@ main :: IO ()
 main = 
   do  args <- cmdArgs argSpec
       let (sumAuto, qTrans) = Automata.sum (Stack.lrStack $ lrsz args) (Stack.rlStack $ rlsz args)
-      let b = Bisim.bisim sumAuto (0, IntMap.fromList [], qTrans 0)
+      let b = Bisim.raBisim sumAuto (0, IntMap.fromList [], qTrans 0)
       putStrLn $ "LR Stack and RL Stack are bisimilar? " ++ show b

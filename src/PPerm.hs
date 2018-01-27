@@ -60,6 +60,13 @@ rng :: PPerm -> [Reg]
 -- ^ @rng s@ is the range of definition of @s@
 rng = IntMap.elems
 
+idPP :: [Reg] -> PPerm
+idPP rs = toPPerm rs 1
+
+swap :: [Reg] -> (Reg, Reg) -> PPerm
+-- ^ @swap (j,j')@ is the transposition of @j@ and @j'@
+swap rs (j, j') = remap j j' $ remap j' j $ idPP rs
+
 toPerm :: PPerm -> Perm
 -- ^ @toPerm s@ is @s@ viewed as a permutation.  Requires that @s@ is a bijection.
 toPerm = Permutation.fromPairs . IntMap.toList
@@ -90,11 +97,19 @@ ch rs fs =
     fix (all,xs) =
       fix $ List.foldr oneStep (all,[]) xs
       
-restrict :: [Reg] -> PPerm -> PPerm
--- ^ @restrict rs s@ is @s@ with domain restricted to @rs@.
-restrict rs f =
+domRestrict :: [Reg] -> PPerm -> PPerm
+-- ^ @domRestrict rs s@ is @s@ with domain restricted to @rs@.
+domRestrict rs f =
   List.foldr checkReg IntMap.empty rs
   where
     checkReg r pp
       | Just s <- IntMap.lookup r f = IntMap.insert r s pp
     checkReg r pp = pp
+
+rngRestrict :: [Reg] -> PPerm -> PPerm 
+-- ^ @rngRestrict rs s@ is @s@ with range restricted to @rs@
+rngRestrict rs f =
+  IntMap.foldrWithKey checkReg IntMap.empty f
+  where
+    checkReg k r pp | List.elem r rs = IntMap.insert k r pp
+    checkReg _ _ pp = pp

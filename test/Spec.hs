@@ -48,7 +48,10 @@ allTests = [
     algTest2,
     algTest3,
     sumTest1,
-    sumTest2
+    sumTest2,
+    fraBisimTest1,
+    fraBisimTest2,
+    fraBisimTest3
   ]
 
 
@@ -160,29 +163,29 @@ dra = Auto { regs = [0,1,2,3,4], stts = [1,2,3], actv = av, trns = ts }
 succsTest1 =
   assertEqual "" expected actual
   where
-    actual   = fmap List.nub (succs dra (q3, IntMap.fromList [(2,3),(3,2)], q3))
-    expected = Just [(q3, IntMap.fromList [(2,3),(3,2)], q3)]
+    actual   = fmap List.nub (succs dra Large (q3, IntMap.fromList [(2,3),(3,2)], q3))
+    expected = Just [(q3, IntMap.fromList [(2,3),(3,2)], q3, Large)]
 
 succsTest2 =
   assertEqual "" Nothing actual
   where
-    actual = succs dra (q3, IntMap.fromList [], q3)
+    actual = succs dra Large (q3, IntMap.fromList [], q3)
 
 succsTest3 =
   assertEqual "" Nothing actual
   where
-    actual = succs dra (q3, IntMap.fromList [(1,2),(2,1),(3,3)], q3)
+    actual = succs dra Large (q3, IntMap.fromList [(1,2),(2,1),(3,3)], q3)
 
 succsTest4 = 
   assertEqual "" expected actual
   where 
-    actual = fmap (List.sort . List.nub) (succs dra (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2))
+    actual = fmap (List.sort . List.nub) (succs dra Large (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2))
     expected = 
       Just (List.sort [
-             (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2),
-             (q3, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q3),
-             (q3, IntMap.fromList [(0,0),(1,1),(2,2),(3,3)], q3),
-             (q3, IntMap.fromList [(1,1),(2,2),(3,3),(4,4)], q3)
+             (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2, Large),
+             (q3, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q3, Large),
+             (q3, IntMap.fromList [(0,0),(1,1),(2,2),(3,3)], q3, Large),
+             (q3, IntMap.fromList [(1,1),(2,2),(3,3),(4,4)], q3, Large)
            ])
 
 chTest1 =
@@ -242,13 +245,13 @@ extTest3 =
     actual = extend (q1, (IntMap.fromList [(0,4),(1,1),(2,2),(3,3)]), q2) step2GenSys 
 
 algTest1 =
-  assertBool "" $ bisim dra (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2)
+  assertBool "" $ raBisim dra (q1, IntMap.fromList [(0,4),(1,1),(2,2),(3,3)], q2)
 
 algTest2 =
-  assertBool "" . not $ bisim dra (q1, IntMap.fromList [(0,0),(1,1),(2,2),(3,3)], q2)
+  assertBool "" . not $ raBisim dra (q1, IntMap.fromList [(0,0),(1,1),(2,2),(3,3)], q2)
 
 algTest3 =
-  assertBool "" $ bisim dra (q2, IntMap.fromList [(1,4),(2,3),(3,2),(4,1)], q2)
+  assertBool "" $ raBisim dra (q2, IntMap.fromList [(1,4),(2,3),(3,2),(4,1)], q2)
 
 sumTest1 =
   assertEqual "" expected (fst $ Automata.sum (Stack.lrStack 1) (Stack.lrStack 1))
@@ -295,6 +298,46 @@ sumTest2 =
         actv = a,
         trns = t
       }
+
+fra1 = 
+  Auto { regs = [1,2], stts = [1,2,3,4], actv = av, trns = ts }
+  where
+    ts = [
+        (1, a, GFresh, 1, 2),
+        (2, a, GFresh, 2, 3),
+        (3, a, GFresh, 1, 4)
+      ]
+    av = IntMap.fromList [(1,[1]),(2,[1]),(3,[1]),(4,[1])]
+
+fra2 = 
+  Auto { regs = [1,2], stts = [1,2,3,4], actv = av, trns = ts }
+  where
+    ts = [
+        (1, a, GFresh, 2, 2),
+        (2, a, GFresh, 1, 3),
+        (3, a, LFresh, 2, 4)
+      ]
+    av = IntMap.fromList [(1,[2]),(2,[2]),(3,[2]),(4,[2])]
+
+fra3 = 
+  Auto { regs = [1,2], stts = [1,2], actv = av, trns = ts }
+  where
+    ts = [
+        (1, a, GFresh, 1, 1),
+        (2, a, LFresh, 2, 2)
+      ]
+    av = IntMap.fromList [(1,[1]),(2,[2])]
+
+fraBisimTest1 = 
+  let (a, qf) = Automata.sum fra1 fra2
+  in assertBool "" (not $ fraBisim a (1, IntMap.empty, qf 1))
+
+fraBisimTest2 = 
+  let (a, qf) = Automata.sum fra1 fra2
+  in assertBool "" (fraBisim a (3, IntMap.fromList [(1,2)], qf 3))
+
+fraBisimTest3 =
+  assertBool "" (not $ fraBisim fra3 (1, IntMap.fromList [(1,2)], 2))
 
 q1 = 1
 q2 = 2
