@@ -51,10 +51,22 @@ allTests = [
     sumTest2,
     fraBisimTest1,
     fraBisimTest2,
-    fraBisimTest3
+    fraBisimTest3,
+    fraBisimTest4,
+    fraBisimTest5,
+    fraBisimTest6,
+    fraBisimTest7,
+    freshSuccsTest
   ]
 
-
+---------------------------------------
+-- Some shorthands to help readability
+---------------------------------------
+q1 = 1
+q2 = 2
+q3 = 3
+a  = 1
+b  = 2
 
 --------------------------------------------------------------------------------------------
 -- Checking that the supplied PermutationGroup and SchreierSims libraries work as expected
@@ -304,20 +316,20 @@ fra1 =
   where
     ts = [
         (1, a, GFresh, 1, 2),
-        (2, a, GFresh, 2, 3),
+        (2, a, GFresh, 1, 3),
         (3, a, GFresh, 1, 4)
       ]
-    av = IntMap.fromList [(1,[1]),(2,[1]),(3,[1]),(4,[1])]
+    av = IntMap.fromList [(1,[]),(2,[1]),(3,[1]),(4,[1])]
 
 fra2 = 
   Auto { regs = [1,2], stts = [1,2,3,4], actv = av, trns = ts }
   where
     ts = [
         (1, a, GFresh, 2, 2),
-        (2, a, GFresh, 1, 3),
+        (2, a, GFresh, 2, 3),
         (3, a, LFresh, 2, 4)
       ]
-    av = IntMap.fromList [(1,[2]),(2,[2]),(3,[2]),(4,[2])]
+    av = IntMap.fromList [(1,[]),(2,[2]),(3,[2]),(4,[2])]
 
 fra3 = 
   Auto { regs = [1,2], stts = [1,2], actv = av, trns = ts }
@@ -327,6 +339,16 @@ fra3 =
         (2, a, LFresh, 2, 2)
       ]
     av = IntMap.fromList [(1,[1]),(2,[2])]
+
+fra4 = 
+  Auto { regs = [1,2], stts = [1,2,3,4], actv = av, trns = ts }
+  where
+    ts = [
+        (1, a, GFresh, 1, 2),
+        (2, a, GFresh, 2, 3),
+        (3, a, LFresh, 2, 4)
+      ]
+    av = IntMap.fromList [(1,[]),(2,[1]),(3,[1,2]),(4,[1,2])]
 
 fraBisimTest1 = 
   let (a, qf) = Automata.sum fra1 fra2
@@ -339,8 +361,25 @@ fraBisimTest2 =
 fraBisimTest3 =
   assertBool "" (not $ fraBisim fra3 (1, IntMap.fromList [(1,2)], 2))
 
-q1 = 1
-q2 = 2
-q3 = 3
-a  = 1
-b  = 2
+fraBisimTest4 = 
+  let (a, qf) = Automata.sum fra1 fra4
+  in assertBool "" (fraBisim a (1, IntMap.empty, qf 1))
+
+fraBisimTest5 = 
+  let (a, qf) = Automata.sum fra1 fra4
+  in assertBool "" (fraBisim a (2, IntMap.fromList [(1,1)], qf 2))
+
+fraBisimTest6 = 
+  let (a, qf) = Automata.sum fra1 fra4
+  in assertBool "" (fraBisim a (3, IntMap.fromList [(1,2)], qf 3))
+
+fraBisimTest7 =
+  let (a, qf) = Automata.sum fra1 fra4
+  in assertBool "" (not $ fraBisim a (3, IntMap.empty, qf 3))
+
+freshSuccsTest = 
+  assertEqual "" expected actual
+  where
+    (a, qf) = Automata.sum fra1 fra4
+    actual = fmap List.nub (succs a (Small 1) (2, IntMap.fromList [(1,1)], qf 2))
+    expected = Just [(3, IntMap.fromList [(1,2),(2,1)], 8, Small 2)]

@@ -37,13 +37,10 @@ succs a h (q1,s,q2) =
     restrict q1 q2 = 
       rngRestrict (actv a ! q2) . domRestrict (actv a ! q1) 
     shuffleDown q1 q2 s =
-      let rs1 = actv a ! q1
-          rs2 = actv a ! q2
-          free1 = [1..2*r] \\ rs1
-          free2 = [1..2*r] \\ rs2
-          triangleLeft s = List.foldr (\p pi -> swap p `compseq` pi) (idPP [1..2*r]) (List.zip s free1)
-          domp = triangleLeft (dom s)
-          rngp = triangleLeft (rng s)
+      let triangleLeft s t = 
+            List.foldr (\p pi -> swap p `compseq` pi) (idPP [1..2*r]) (List.zip (t \\ s) ([1..2*r] \\ s))
+          domp = triangleLeft (actv a ! q1) (dom s)
+          rngp = triangleLeft (actv a ! q2) (rng s)
       in  inverse domp `compseq` s `compseq` rngp
     reflect (q1, s, q2, h) = (q2, inverse s, q1, h) 
     hasInitTagFreshMode q t (q',t',m',_,_) = q == q' && t == t' && (m' == LFresh || m' == GFresh)
@@ -144,7 +141,7 @@ fraBisim = bisimWithHistory
 
 bisimWithHistory :: Auto -> (State, PPerm, State) -> Bool
 bisimWithHistory a (q1,s,q2) =
-  bisimWithGivenHistory a (Seq.singleton (q1,s',q2)) (Small 0)
+  bisimWithGivenHistory a (Seq.singleton (q1,s',q2)) (Small (IntMap.size s'))
   where
     r = List.length (regs a)
     mu = actv a
