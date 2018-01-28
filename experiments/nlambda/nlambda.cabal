@@ -1,0 +1,35 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 4c8242cebc29519ed2f303064624489f7d07af59037d82a37aefcfb523c3ffa8
+
+name:           nlambda
+version:        0.1.0.0
+description:    Please see the README on Github at <https://github.com/githubuser/nlambda#readme>
+homepage:       https://github.com/githubuser/nlambda#readme
+bug-reports:    https://github.com/githubuser/nlambda/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2018 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+executable nlambda-exe
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , cmdargs
+    , NLambda
+  default-language: Haskell2010
+
