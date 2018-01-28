@@ -17,11 +17,26 @@ import qualified Data.List as List
 import Data.Sequence (Seq(..),ViewL(..),(><),(<|),(|>))
 import qualified Data.Sequence as Seq
 
+import Math.Algebra.Group.PermutationGroup ((-^))              -- permutation action on lists
+import Math.Algebra.Group.PermutationGroup as Permutation (p)  -- permutation from disjoint cycles constructor
+
 import Automata 
 import PPerm 
 import GenSystem 
 
 data History = Small Int | Large deriving (Eq,Ord,Show)
+
+triangleLeft :: Int -> [Reg] -> [Reg] -> Perm
+triangleLeft r s t =
+  List.foldr (\(i,j) pi -> pi * Permutation.p [[i,j]]) 1 (List.zip ((t \\ [1..n]) \\ s) ([n+1..2*r] \\ s))
+  where
+    n = List.foldl (\j i -> if i == j + 1 then i else j) 0 (List.sort t)
+
+invTriangleLeft :: Int -> [Reg] -> [Reg] -> Perm
+invTriangleLeft r s t =
+  List.foldr (\(i,j) pi -> Permutation.p [[i,j]] * pi) 1 (List.zip ((t \\ [1..n]) \\ s) ([n+1..2*r] \\ s))
+  where
+    n = List.foldl (\j i -> if i == j + 1 then i else j) 0 (List.sort t)
 
 succs :: Auto -> History -> (State, PPerm, State) -> Maybe [(State, PPerm, State, History)]
 -- ^ @succs a (q1, s, q2)@ is @Just pps@ whenever @q1@ and @q2@ are one-step @s@-bisimilar
@@ -37,11 +52,9 @@ succs a h (q1,s,q2) =
     restrict q1 q2 = 
       rngRestrict (actv a ! q2) . domRestrict (actv a ! q1) 
     shuffleDown q1 q2 s =
-      let triangleLeft s t = 
-            List.foldr (\p pi -> swap p `compseq` pi) (idPP [1..2*r]) (List.zip (t \\ s) ([1..2*r] \\ s))
-          domp = triangleLeft (actv a ! q1) (dom s)
-          rngp = triangleLeft (actv a ! q2) (rng s)
-      in  inverse domp `compseq` s `compseq` rngp
+      let domp = toPPerm [1..2*r] (invTriangleLeft r (actv a ! q1) (dom s))
+          rngp = toPPerm [1..2*r] (triangleLeft r (actv a ! q2) (rng s)) 
+      in  domp `compseq` s `compseq` rngp
     reflect (q1, s, q2, h) = (q2, inverse s, q1, h) 
     hasInitTagFreshMode q t (q',t',m',_,_) = q == q' && t == t' && (m' == LFresh || m' == GFresh)
     hasInitTagMode q t m (q',t',m',_,_) = q == q' && t == t' && m == m'
@@ -175,10 +188,18 @@ bisimWithGivenHistory a que h =
     initGs :: Auto -> GenSystem
     initGs a = GenSys {
         rep = IntMap.fromList (List.map (\q -> (q, q)) $ stts a),
-        chr = IntMap.fromList (List.map (\q -> (q, actv a ! q)) $ stts a),
+        chr = IntMap.fromList (List.map (\q -> (q, initRegs q)) $ stts a),
         grp = IntMap.fromList (List.map (\q -> (q, [])) $ stts a),
-        ray = IntMap.fromList (List.map (\q -> (q, toPPerm (regs a) 1)) $ stts a)
+        ray = IntMap.fromList (List.map (\q -> (q, toPPerm (initRegs q) 1)) $ stts a)
       }
+      where
+        initRegs q =
+          let muq = actv a ! q in
+          case h of 
+            Small sz -> 
+              let t = muq ++ [r+1..sz-List.length muq]
+              in  t -^ triangleLeft r muq t
+            Large    -> muq
   
 
     loop :: GenSystem -> Seq (State, PPerm, State) -> Seq (State, PPerm, State) -> Maybe (Seq (State, PPerm, State))

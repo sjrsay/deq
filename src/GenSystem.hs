@@ -82,9 +82,9 @@ extend (q1,s,q2) gs | equiv gs q1 q2 =
     -- add s' to generators maintaining sortedness only for testing purposes
     gs { grp = IntMap.insert q (List.insert p g) (grp gs) }
   else
-    -- shrink x
+    -- adjust x
     let ss = s' : List.map (toPPerm x) g in
-    let x' = ch x ss in
+    let x' = List.sort (ch x ss) in
     let g' = List.sort $ List.map (toPerm . domRestrict x') ss in
     let ray' = IntMap.foldWithKey (rayUpdate x') IntMap.empty (ray gs) in
     gs { chr = IntMap.insert q x' (chr gs), grp = IntMap.insert q g' (grp gs), ray = ray' }
