@@ -126,7 +126,8 @@ succs a h (q1,s,q2) =
     ---- (e), (f) q1 --t,i*--> q1'
     trans ref s q2 (q1,t,LFresh,i,q1') | Large <- h =
       do (_,_,_,j,q2') <- List.find (hasInitTagMode q2 t LFresh) (trns a)
-         let notRng = actv a ! q2 \\ rng s
+         let rng = IntMap.foldr (\x xs -> IntSet.insert x xs) IntSet.empty s
+         let notRng = List.filter (\x -> not $ IntSet.member x rng) (actv a ! q2)
          let find k = List.find (hasInitTagModeIndex q2 t Stored k) (trns a)
          let mkSucc k =
                do (_,_,_,_,q2') <- find k
@@ -198,7 +199,7 @@ bisimWithGivenHistory a que h =
           case h of 
             Small sz -> 
               let t = muq ++ [r+1..sz-List.length muq]
-              in  t -^ triangleLeft r muq t
+              in  List.sort (t -^ triangleLeft r muq t)
             Large    -> muq
   
 
@@ -218,4 +219,4 @@ bisimWithGivenHistory a que h =
     queueUp pps (que1,que2) =
       let separateByHist (q1,s,q2,h') (que1,que2) =
             if h == h' then (que1 |> (q1,s,q2), que2) else (que1, que2 |> (q1,s,q2))
-      in  List.foldr separateByHist (que1, que2) pps
+      in  List.foldr separateByHist (que1, que2) (List.nub pps)

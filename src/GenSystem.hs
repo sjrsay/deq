@@ -10,7 +10,6 @@ import qualified Data.IntSet as IntSet
 
 import Math.Algebra.Group.PermutationGroup (Permutation,p,(.^))
 import Math.Algebra.Group.PermutationGroup as Permutation (fromPairs)
-import qualified Math.Algebra.Group.SchreierSims as Permutation (isMember,elts)
 
 import Automata (Reg,State,StateMap)
 import PPerm 
@@ -53,14 +52,14 @@ nonRepresentatives :: GenSystem -> [State]
 --   representatives of equivalence classes
 nonRepresentatives gs = IntMap.keys (ray gs)
 
-partialGens :: GenSystem -> [(State, PPerm, State)]
+-- partialGens :: GenSystem -> [(State, PPerm, State)]
 -- ^ @partialGens gs@ is the set of partial permutations that comprises the generating
 -- system, the "canonical subset" of the draft.  It is /not/ the set of partial 
 -- permutations so generated (the closure).
-partialGens gs =
-  [ (q, permToPPerm q pi, q) | q <- representatives gs, pi <- Permutation.elts $ grp gs ! q ]
-    ++ [ (rep gs ! q, ray gs ! q, q) | q <- nonRepresentatives gs ]
-  where permToPPerm q = toPPerm (chr gs ! q )
+-- partialGens gs =
+--   [ (q, permToPPerm q pi, q) | q <- representatives gs, pi <- Permutation.elts $ grp gs ! q ]
+--     ++ [ (rep gs ! q, ray gs ! q, q) | q <- nonRepresentatives gs ]
+--   where permToPPerm q = toPPerm (chr gs ! q )
   
 isMember :: GenSystem -> (State, PPerm, State) -> Bool
 -- ^ @isMember gs (q1, s, q2)@ is true just if @(q1, s, q2)@ is in the closure of @gs@.
@@ -80,14 +79,15 @@ extend :: (State, PPerm, State) -> GenSystem -> GenSystem
 extend (q1,s,q2) gs | equiv gs q1 q2 =
   if dom s' == x then
     -- add s' to generators maintaining sortedness only for testing purposes
-    gs { grp = IntMap.insert q (List.insert p g) (grp gs) }
+    let sgs = mksgs (p:g)
+    in  gs { grp = IntMap.insert q sgs (grp gs) }
   else
     -- adjust x
-    let ss = s' : List.map (toPPerm x) g in
-    let x' = List.sort (ch x ss) in
-    let g' = List.sort $ List.map (toPerm . domRestrict x') ss in
-    let ray' = IntMap.foldWithKey (rayUpdate x') IntMap.empty (ray gs) in
-    gs { chr = IntMap.insert q x' (chr gs), grp = IntMap.insert q g' (grp gs), ray = ray' }
+    let ss = s' : List.map (toPPerm x) g 
+        x' = List.sort (ch x ss) 
+        g' = mksgs (List.map (toPerm . domRestrict x') ss)
+        ray' = IntMap.foldWithKey (rayUpdate x') IntMap.empty (ray gs) 
+    in  gs { chr = IntMap.insert q x' (chr gs), grp = IntMap.insert q g' (grp gs), ray = ray' }
   where
     q  = rep gs ! q1
     g  = grp gs ! q
@@ -106,7 +106,7 @@ extend (q1,s,q2) gs | not (equiv gs q1 q2) =
   let rep' = IntMap.map (\q -> if q == q1' || q == q2' then q1' else q) (rep gs) in
   let h    = List.map (toPPerm x1) g1 ++ List.map (\ge -> s1 `compseq` toPPerm x2 ge `compseq` s2) g2 in
   let x    = ch x1 h in
-  let g'   = List.sort $ List.map (toPerm . domRestrict x) h in
+  let g'   = mksgs (List.map (toPerm . domRestrict x) h) in
   let grp' = IntMap.insert q1' g' (IntMap.delete q2' (grp gs)) in
   let chr' = IntMap.insert q1' x (IntMap.delete q2' (chr gs)) in
   let ray' = IntMap.foldWithKey (rayUpdate x) IntMap.empty (ray gs) in
