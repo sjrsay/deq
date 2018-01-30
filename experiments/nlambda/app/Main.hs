@@ -27,19 +27,15 @@ lrStack n = automaton
     -- transitions
     (map (\a -> (Nothing, Put a, Nothing)) atoms
         `union` map (\a -> (Nothing, Get a, Nothing)) atoms
-        `union` triplesWith (\s1 a s2 -> (Just s1, Put a, nextState s1 a s2)) allStates atoms allStates
-        `union` triplesWith (\s1 a s2 -> (Just s1, Get a, prevState s1 a s2)) allStates atoms allStates)
+        `union` triplesWithFilter (\s1 a s2 -> maybeIf ((a:s1) `eq` s2) (Just s1, Put a, Just s2)) allStates atoms allStates
+        `union` triplesWithFilter (\s1 a s2 -> maybeIf (s1 `eq` (a:s2)) (Just s1, Get a, Just s2)) allStates atoms allStates)
     -- initial states
     (singleton (Just []))
     -- final states
     (map Just allStates)
     where
         allStates = sum . fromList $ [states i | i <- [0..n]]
-        states i = replicateDifferentAtoms i
-        nextState stack1 a stack2 = 
-            if (a:stack1) == stack2 then Just stack2 else Nothing
-        prevState stack1 a stack2 =
-            if stack1 == (a:stack2) then Just stack2 else Nothing
+        states i = replicateAtoms i
 
 rlStack :: Int -> Automaton (Maybe [Atom]) DataInput
 rlStack n = automaton
@@ -51,19 +47,15 @@ rlStack n = automaton
     -- transitions
     (map (\a -> (Nothing, Put a, Nothing)) atoms
         `union` map (\a -> (Nothing, Get a, Nothing)) atoms
-        `union` triplesWith (\s1 a s2 -> (Just s1, Put a, nextState s1 a s2)) allStates atoms allStates
-        `union` triplesWith (\s1 a s2 -> (Just s1, Get a, prevState s1 a s2)) allStates atoms allStates)
+        `union` triplesWithFilter (\s1 a s2 -> maybeIf ((s1 ++ [a]) `eq` s2) (Just s1, Put a, Just s2)) allStates atoms allStates
+        `union` triplesWithFilter (\s1 a s2 -> maybeIf (s1 `eq` (s2 ++ [a])) (Just s1, Get a, Just s2)) allStates atoms allStates)
     -- initial states
     (singleton (Just []))
     -- final states
     (map Just allStates)
     where
         allStates = sum . fromList $ [states i | i <- [0..n]]
-        states i = replicateDifferentAtoms i
-        nextState stack1 a stack2 = 
-            if stack1 ++ [a] == stack2 then Just stack2 else Nothing
-        prevState stack1 a stack2 =
-            if stack1 == stack2 ++ [a] then Just stack2 else Nothing
+        states i = replicateAtoms i
 
 data Args =
   Args {
@@ -81,8 +73,9 @@ argSpec =
 main :: IO ()
 main =
   do args <- cmdArgs argSpec
-     let a1 = lrStack (lrsz args)
-     let a2 = rlStack (rlsz args)
-     putStrLn "Constructed... "
+     let a1 = lrStack 4
+     let a2 = rlStack 2
+     putStrLn $ "Constructed... " ++ show (accepts a1 (replicate 3 (Put $ atom "a"))) ++ " " ++ show (accepts a2 (replicate 3 (Put $ atom "a")))
      let f = equivalentDA a1 a2
      putStrLn ("Equivalent? " ++ show f)
+     putStrLn (show a1)
