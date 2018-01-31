@@ -6,6 +6,8 @@ import Data.Data (Data)
 import Data.Typeable (Typeable)
 import qualified Data.IntMap as IntMap
 import System.Console.CmdArgs.Implicit ((&=),summary,help,cmdArgs)
+import System.CPUTime
+import Text.Printf
 
 import Bisim
 import Automata
@@ -27,6 +29,14 @@ argSpec =
 main :: IO ()
 main = 
   do  args <- cmdArgs argSpec
-      let (sumAuto, qTrans) = Automata.sum (Stack.lrStack $ lrsz args) (Stack.rlStack $ rlsz args)
+      let lr = lrsz args
+      let rl = rlsz args
+      let (sumAuto, qTrans) = Automata.sum (Stack.lrStack lr) (Stack.rlStack rl)
+      start <- getCPUTime
       let b = Bisim.raBisim sumAuto (0, IntMap.fromList [], qTrans 0)
-      putStrLn $ "LR Stack and RL Stack are bisimilar? " ++ show b
+      putStr $ show lr ++ ", " ++ show rl ++ ", " ++ show b ++ ", "
+      stop <- getCPUTime
+      let diff = (fromIntegral (stop - start)) / (10^9)
+      printf "%.0f\n" (diff :: Double)
+
+      printf ""
