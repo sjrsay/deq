@@ -5,6 +5,9 @@ module Main where
 import GHC.Generics (Generic)
 import NLambda
 import Prelude hiding (map,sum)
+import Control.DeepSeq
+import Text.Printf
+import System.CPUTime
 
 import Data.Data (Data)
 import Data.Typeable (Typeable)
@@ -18,44 +21,38 @@ data DataInput = Put Atom | Get Atom
 -- The automaton: States consist of stacks and a sink state.
 -- The parameter n is the bound.
 lrStack :: Int -> Automaton (Maybe [Atom]) DataInput
-lrStack n = automaton
+lrStack n = automatonWithTrashCan
     -- states
-    (singleton Nothing
-        `union` map Just allStates)
+    allStates
     -- alphabet
     (map Put atoms `union` map Get atoms)
     -- transitions
-    (map (\a -> (Nothing, Put a, Nothing)) atoms
-        `union` map (\a -> (Nothing, Get a, Nothing)) atoms
-        `union` triplesWithFilter (\s1 a s2 -> maybeIf ((a:s1) `eq` s2) (Just s1, Put a, Just s2)) allStates atoms allStates
-        `union` triplesWithFilter (\s1 a s2 -> maybeIf (s1 `eq` (a:s2)) (Just s1, Get a, Just s2)) allStates atoms allStates)
+    (triplesWithFilter (\s1 a s2 -> maybeIf ((a:s1) `eq` s2) (s1, Put a, s2)) allStates atoms allStates
+        `union` triplesWithFilter (\s1 a s2 -> maybeIf (s1 `eq` (a:s2)) (s1, Get a, s2)) allStates atoms allStates)
     -- initial states
-    (singleton (Just []))
+    (singleton [])
     -- final states
-    (map Just allStates)
+    allStates
     where
         allStates = sum . fromList $ [states i | i <- [0..n]]
-        states i = replicateAtoms i
+        states i = replicateDifferentAtoms i
 
 rlStack :: Int -> Automaton (Maybe [Atom]) DataInput
-rlStack n = automaton
+rlStack n = automatonWithTrashCan
     -- states
-    (singleton Nothing
-        `union` map Just allStates)
+    allStates   
     -- alphabet
     (map Put atoms `union` map Get atoms)
     -- transitions
-    (map (\a -> (Nothing, Put a, Nothing)) atoms
-        `union` map (\a -> (Nothing, Get a, Nothing)) atoms
-        `union` triplesWithFilter (\s1 a s2 -> maybeIf ((s1 ++ [a]) `eq` s2) (Just s1, Put a, Just s2)) allStates atoms allStates
-        `union` triplesWithFilter (\s1 a s2 -> maybeIf (s1 `eq` (s2 ++ [a])) (Just s1, Get a, Just s2)) allStates atoms allStates)
+    (triplesWithFilter (\s1 a s2 -> maybeIf ((s1 ++ [a]) `eq` s2) (s1, Put a, s2)) allStates atoms allStates
+        `union` triplesWithFilter (\s1 a s2 -> maybeIf (s1 `eq` (s2 ++ [a])) (s1, Get a, s2)) allStates atoms allStates)
     -- initial states
-    (singleton (Just []))
+    (singleton [])
     -- final states
-    (map Just allStates)
+    allStates
     where
         allStates = sum . fromList $ [states i | i <- [0..n]]
-        states i = replicateAtoms i
+        states i = replicateDifferentAtoms i
 
 data Args =
   Args {
@@ -73,9 +70,14 @@ argSpec =
 main :: IO ()
 main =
   do args <- cmdArgs argSpec
-     let a1 = lrStack 4
-     let a2 = rlStack 2
-     putStrLn $ "Constructed... " ++ show (accepts a1 (replicate 3 (Put $ atom "a"))) ++ " " ++ show (accepts a2 (replicate 3 (Put $ atom "a")))
+     let lr = lrsz args
+     let rl = rlsz args
+     let a1 = lrStack lr 
+     let a2 = rlStack rl 
+     start <- getCPUTime
      let f = equivalentDA a1 a2
-     putStrLn ("Equivalent? " ++ show f)
-     putStrLn (show a1)
+     putStr $ show lr ++ ", " ++ show rl ++ ", " ++ show f ++ ", "
+     stop <- getCPUTime
+     let diff = (fromIntegral (stop - start)) / (10^9)
+     printf "%.0f\n" (diff :: Double)
+     
