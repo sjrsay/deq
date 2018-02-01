@@ -42,11 +42,12 @@ succs :: Auto -> History -> (State, PPerm, State) -> Maybe [(State, PPerm, State
 -- ^ @succs a (q1, s, q2)@ is @Just pps@ whenever @q1@ and @q2@ are one-step @s@-bisimilar
 --   in @a@ with successor triples @pps@ and otherwise @Nothing@.
 succs a h (q1,s,q2) =
-  do q1succs <- mapM (trans id s q2) (List.filter ((==) q1 . init) (trns a))
-     q2succs <- mapM (trans reflect (inverse s) q1) (List.filter ((==) q2 . init) (trns a))
+  do q1succs <- mapM (trans id s q2 q2trans) q1trans
+     q2succs <- mapM (trans reflect (inverse s) q1 q1trans) q2trans
      return (concat q1succs ++ concat q2succs)
   where
-
+    q1trans = List.filter ((==) q1 . init) (trns a)
+    q2trans = List.filter ((==) q2 . init) (trns a)
     r = List.length (regs a)
     swap = PPerm.swap [1..2*r]
     restrict q1 q2 = 
@@ -62,35 +63,35 @@ succs a h (q1,s,q2) =
     
     -- The conditions on successors are given, as in the draft, for q1 and then we obtain
     -- the symmetric conditions for q2 by using reflect.
-    trans :: ((State, PPerm, State, History) -> (State, PPerm, State, History)) -> PPerm -> State -> Transition -> Maybe [(State, PPerm, State, History)]
+    trans :: ((State, PPerm, State, History) -> (State, PPerm, State, History)) -> PPerm -> State -> [Transition] -> Transition -> Maybe [(State, PPerm, State, History)]
     -----------------------------------------------
     -- SMALL h
     -----------------------------------------------
     ---- (a) q1 --t,i--> q1'
-    trans ref s q2 (q1,t,Stored,i,q1') | Small _ <- h =
+    trans ref s q2 q2trns (q1,t,Stored,i,q1') | Small _ <- h =
       let j = s ! i in -- guaranteed since h <= 2r
       if List.elem j (actv a ! q2) then 
-        do (_,_,_,_,q2') <- List.find (hasInitTagModeIndex q2 t Stored j) (trns a)
+        do (_,_,_,_,q2') <- List.find (hasInitTagModeIndex q2 t Stored j) q2trns
            let s' = shuffleDown q1' q2' s
            return [ref (q1', s', q2', h)]
       else
-        do (_,_,_,j',q2') <- List.find (hasInitTagMode q2 t LFresh) (trns a)
+        do (_,_,_,j',q2') <- List.find (hasInitTagMode q2 t LFresh) q2trns
            let s' = shuffleDown q1' q2' (s `compseq` swap (j,j'))
            return [ref (q1', s', q2', h)]
 
     ---- (b), (c) q1 --t,i*--> q1' 
-    trans ref s q2 (q1,t,LFresh,i,q1') | Small _ <- h =
+    trans ref s q2 q2trns (q1,t,LFresh,i,q1') | Small _ <- h =
       let forHistorical i' = 
             let j = s ! i' in
             if List.elem j (actv a ! q2) then
-              do (_,_,_,_,q2') <- List.find (hasInitTagModeIndex q2 t Stored j) (trns a)
+              do (_,_,_,_,q2') <- List.find (hasInitTagModeIndex q2 t Stored j) q2trns
                  let s' = shuffleDown q1' q2' (swap (i,i') `compseq` s)
                  return (ref (q1', s', q2', h))
             else 
               do (_,_,_,j',q2') <- List.find (hasInitTagMode q2 t LFresh) (trns a)
                  let s' = shuffleDown q1' q2' (swap (i,i') `compseq` s `compseq` swap (j,j'))
                  return (ref (q1', s', q2', h))
-      in do gFreshSuccs <- trans ref s q2 (q1,t,GFresh,i,q1')
+      in do gFreshSuccs <- trans ref s q2 q2trns (q1,t,GFresh,i,q1')
             let [gFreshSucc] = gFreshSuccs -- there is only one, actually
             historicalSuccs <- 
               let historicalForQ1 = dom s \\ (actv a ! q1)
@@ -98,7 +99,7 @@ succs a h (q1,s,q2) =
             return (gFreshSucc : historicalSuccs)
             
     ---- (b), (c) q1 --t,i**--> q1'
-    trans ref s q2 (q1,t,GFresh,i,q1') | Small hsz <- h =
+    trans ref s q2 q2trns (q1,t,GFresh,i,q1') | Small hsz <- h =
       do (_,_,l',j,q2') <- List.find (hasInitTagFreshMode q2 t) (trns a)
          if hsz < 2*r then 
            let s' = shuffleDown q1' q2' (swap (i,2*r) `compseq` remap (2*r) (2*r) s `compseq` swap (j,2*r))
@@ -112,23 +113,23 @@ succs a h (q1,s,q2) =
     -- LARGE h
     --------------------------------------------------------
     ---- (d) q1 --t,i--> q1' 
-    trans ref s q2 (q1,t,Stored,i,q1') | Large <- h =
+    trans ref s q2 q2trns (q1,t,Stored,i,q1') | Large <- h =
       case IntMap.lookup i s of
       Just j -> 
-        do  (_,_,_,_,q2') <- List.find (hasInitTagModeIndex q2 t Stored j) (trns a)
+        do  (_,_,_,_,q2') <- List.find (hasInitTagModeIndex q2 t Stored j) q2trns
             let s' = restrict q1' q2' s
             return [ref (q1', s', q2', h)]
       Nothing ->
-        do  (_,_,_,j,q2') <- List.find (hasInitTagMode q2 t LFresh) (trns a)
+        do  (_,_,_,j,q2') <- List.find (hasInitTagMode q2 t LFresh) q2trns
             let s' = restrict q1' q2' (remap i j s)
             return [ref (q1', s', q2', h)]
 
     ---- (e), (f) q1 --t,i*--> q1'
-    trans ref s q2 (q1,t,LFresh,i,q1') | Large <- h =
-      do (_,_,_,j,q2') <- List.find (hasInitTagMode q2 t LFresh) (trns a)
+    trans ref s q2 q2trns (q1,t,LFresh,i,q1') | Large <- h =
+      do (_,_,_,j,q2') <- List.find (hasInitTagMode q2 t LFresh) q2trns
          let rng = IntMap.foldr (\x xs -> IntSet.insert x xs) IntSet.empty s
          let notRng = List.filter (\x -> not $ IntSet.member x rng) (actv a ! q2)
-         let find k = List.find (hasInitTagModeIndex q2 t Stored k) (trns a)
+         let find k = List.find (hasInitTagModeIndex q2 t Stored k) q2trns
          let mkSucc k =
                do (_,_,_,_,q2') <- find k
                   return (ref (q1', remap i k s, q2', h))
@@ -137,8 +138,8 @@ succs a h (q1,s,q2) =
          return (ref (q1', s', q2', h) : succs)
 
     ---- (f) q1 --t,i**--> q1'
-    trans ref s q2 (q1,t,GFresh,i,q1') | Large <- h =
-      do (_,_,_,j,q2') <- List.find (hasInitTagFreshMode q2 t) (trns a)
+    trans ref s q2 q2trns (q1,t,GFresh,i,q1') | Large <- h =
+      do (_,_,_,j,q2') <- List.find (hasInitTagFreshMode q2 t) q2trns
          let s' = restrict q1' q2' (remap i j s)
          return [(ref (q1, s', q2', h))]
 
@@ -180,7 +181,7 @@ bisimWithGivenHistory a que h =
       case h of
         Small sz | sz < 2*r -> bisimWithGivenHistory a que' (Small (sz+1)) 
         Small _             -> bisimWithGivenHistory a que' Large          
-        Large               -> True 
+        Large               -> True
 
   where
     
@@ -219,4 +220,4 @@ bisimWithGivenHistory a que h =
     queueUp pps (que1,que2) =
       let separateByHist (q1,s,q2,h') (que1,que2) =
             if h == h' then (que1 |> (q1,s,q2), que2) else (que1, que2 |> (q1,s,q2))
-      in  List.foldr separateByHist (que1, que2) (List.nub pps)
+      in  List.foldr separateByHist (que1, que2) (pps)

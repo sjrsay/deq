@@ -38,5 +38,3 @@ main =
       stop <- getCPUTime
       let diff = (fromIntegral (stop - start)) / (10^9)
       printf "%.0f\n" (diff :: Double)
-
-      printf ""
