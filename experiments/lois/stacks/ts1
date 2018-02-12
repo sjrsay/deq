@@ -1,0 +1,9 @@
+for(term a0:A){
+word w1= concat (elof(a0), w0);
+auto ew1= elof(w1);
+target.Q += elof(w1);
+target.F += elof(w1);
+target.delta += mytransition(ew0, elof(make_lpair(epush, a0)), ew1);
+target.delta += mytransition(ew1, elof(make_lpair(epop, a0)), ew0);
+for(term x: A) target.delta += mytransition(ew1, (elpair(epush, x)), etrash);
+}

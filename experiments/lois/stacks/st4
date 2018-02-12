@@ -1,0 +1,36 @@
+for(term a0:A){
+word w1= concat (w0, elof(a0));
+auto ew1= elof(w1);
+target.Q += elof(w1);
+target.F += elof(w1);
+target.delta += mytransition(ew0, elof(make_lpair(epush, a0)), ew1);
+target.delta += mytransition(ew1, elof(make_lpair(epop, a0)), ew0);
+for(term a1:A) Ife (a0!=a1){
+word w2= concat (w1, elof(a1));
+auto ew2= elof(w2);
+target.Q += elof(w2);
+target.F += elof(w2);
+target.delta += mytransition(ew1, elof(make_lpair(epush, a1)), ew2);
+target.delta += mytransition(ew2, elof(make_lpair(epop, a1)), ew1);
+for(term a2:A) Ife (a0!=a2 && a1!=a2){
+word w3= concat (w2, elof(a2));
+auto ew3= elof(w3);
+target.Q += elof(w3);
+target.F += elof(w3);
+target.delta += mytransition(ew2, elof(make_lpair(epush, a2)), ew3);
+target.delta += mytransition(ew3, elof(make_lpair(epop, a2)), ew2);
+for(term a3:A) Ife (a0!=a3 && a1!=a3 && a2!=a3){
+word w4= concat (w3, elof(a3));
+auto ew4= elof(w4);
+target.Q += elof(w4);
+target.F += elof(w4);
+target.delta += mytransition(ew3, elof(make_lpair(epush, a3)), ew4);
+target.delta += mytransition(ew4, elof(make_lpair(epop, a3)), ew3);
+for(term x: A) target.delta += mytransition(ew4, (elpair(epush, x)), etrash);
+}
+else target.delta += mytransition(ew3, elof(make_lpair(epush, a3)), etrash);
+}
+else target.delta += mytransition(ew2, elof(make_lpair(epush, a2)), etrash);
+}
+else target.delta += mytransition(ew1, elof(make_lpair(epush, a1)), etrash);
+}
