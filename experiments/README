@@ -1,32 +1,21 @@
 
-To reproduce the experiments from the LICS submission, please do the following.  Unless otherwise specified, each command is to be run in the context of the experiments directory.
+To run the experiments, please follow the instructions below.  Unless otherwise specified, each command is to be run in the context of the experiments directory.
 
 Setup
 ======
 
-You will need to be running in a unix environment equipped with the prerequisites for building LOIS and NLambda.
+In order to run the experiments, it is convenient to be running in a unix environment equipped with make.
 
 Ensure that all the tools/libraries are built correctly:
 * To build all of the experiments related to DEQ, run "stack build" from the root of the repository.
-* To build LOIS, run "unzip lois/lois.zip -d lois" to unpack the source code for the exact version of LOIS to the lois directory. Change to this directory and run "make".
-* To build the harness for LOIS, change to the directory lois/stacks and run "g++ -std=c++0x -O3 stacks.cpp ../bin/liblois.a -o stacks"
-* To build NLambda, from the directory nlambda, run "stack build".
-* To build deq, from the root of the repository run "stack build".
-* Edit the file Makefile to set the bin directory containing the nlambda and deq executables that were built in the previous two steps.
+* Edit the file Makefile to set the bin directory containing the deq executable that was built in the previous step.
 
 Benchmarking
 =============
 In all output files, the final column records the time taken in ms.
 
-Deq:
-* To produce the results from Figure 1(a), please run "make scale" and "make glbl".  The results are output to the files "scale.txt" and "global.txt" respectively.
-* To produce the results from Figure 1(b), please run "make deq-allpairs".  The results are output to the file "deq-allpairs.txt". 
-* To produce the results from Figure 1(c), please run "make onestate". The results are output to the file "one.txt".
-
-NLambda:
-* To produce the results from Figure 1(b), please run "make nlambda-allpairs". The results are output to the file "nlambda-allpairs.txt".
-
-LOIS:
-* To produce the results from Figure 1(b), please run "make lois-allpairs". The results are output to the file "lois-allpairs.txt".
+* To produce the results of the automata-simulating-a-finite-stack experiments, please run "make scale", the results are output to the file scale.txt.  The source for this experiment is in the subdirectory ../Stacks
+* To produce the results of the local/global freshness experiment, run "make glbl".  The results are output to the file "global.txt".  The source for this experiment is in the subdirectory ../global
+* To produce the results of the one-state experiment, please run "make onestate". The results are output to the file "one.txt".  The source for this experiment is in the subdirectory ../one
 
 

@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Automata, PPerm, GenSystem, Bisim, Stack
+  exposed-modules:     Automata, PPerm, GenSystem, Bisim
   build-depends:       base >= 4.7 && < 5
                      , containers
                      , HaskellForMaths
@@ -32,6 +32,7 @@ executable runner-exe
 executable stacks-exe
   hs-source-dirs:      stacks
   main-is:             Main.hs
+  other-modules:       Stack
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , containers
