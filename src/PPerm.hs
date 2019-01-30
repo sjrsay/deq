@@ -51,7 +51,7 @@ compseq p q =
 inverse :: PPerm -> PPerm
 -- ^ @inverse s@ is the inverse of @s@.
 inverse p =
-  IntMap.foldWithKey (\k a b -> IntMap.insert (p ! k) k b) IntMap.empty p
+  IntMap.foldWithKey (\k a b -> IntMap.insert a k b) IntMap.empty p
   
 remap :: Reg -> Reg -> PPerm -> PPerm
 -- ^ @remap i j s@ is the largest partial permutation @s@ smaller than the function @s[i |-> j]@
@@ -105,7 +105,8 @@ ch rs fs =
       fix $ List.foldr oneStep (all,[]) xs
       
 domRestrict :: [Reg] -> PPerm -> PPerm
--- ^ @domRestrict rs s@ is @s@ with domain restricted to @rs@.
+-- ^ @domRestrict rs f@ is @f@ with domain restricted to @rs@.
+-- |rs| * log |f|
 domRestrict rs f =
   List.foldr checkReg IntMap.empty rs
   where
@@ -115,6 +116,7 @@ domRestrict rs f =
 
 rngRestrict :: [Reg] -> PPerm -> PPerm 
 -- ^ @rngRestrict rs s@ is @s@ with range restricted to @rs@
+-- |rs| * (log |f| + log |rs|)
 rngRestrict rs f =
   IntMap.foldrWithKey checkReg IntMap.empty f
   where

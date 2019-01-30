@@ -1,0 +1,13 @@
+<!ELEMENT dra (states, initial-state, transitions)>
+<!ELEMENT states (state+)>
+<!ELEMENT state (id, available-registers)>
+<!ELEMENT id (#PCDATA)>
+<!ELEMENT available-registers (register*)>
+<!ELEMENT initial-state (#PCDATA)>
+<!ELEMENT transitions (transition*)>
+<!ELEMENT transition (from, input, op, register, to)>
+<!ELEMENT from (#PCDATA)>
+<!ELEMENT input (#PCDATA)>
+<!ELEMENT op (#PCDATA)>
+<!ELEMENT register (#PCDATA)>
+<!ELEMENT to (#PCDATA)>

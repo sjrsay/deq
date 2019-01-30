@@ -5,12 +5,6 @@ import qualified Data.List as List
 import Data.IntMap (IntMap,(!))
 import qualified Data.IntMap as IntMap
 
-import Data.IntSet (IntSet)
-import qualified Data.IntSet as IntSet
-
-import Math.Algebra.Group.PermutationGroup (Permutation,p,(.^))
-import Math.Algebra.Group.PermutationGroup as Permutation (fromPairs)
-
 import Automata (Reg,State,StateMap)
 import PPerm 
 
@@ -78,7 +72,7 @@ extend :: (State, PPerm, State) -> GenSystem -> GenSystem
 -- @gs@ and also @(q1, s, q2)@.
 extend (q1,s,q2) gs | equiv gs q1 q2 =
   if dom s' == x then
-    -- add s' to generators maintaining sortedness only for testing purposes
+    -- add s' to generators maintaining sortedness
     let sgs = mksgs (p:g)
     in  gs { grp = IntMap.insert q sgs (grp gs) }
   else

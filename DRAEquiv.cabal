@@ -1,77 +1,41 @@
 name:                DRAEquiv
-version:             0.1.0.0
+version:             1.1
 -- synopsis:
 -- description:
-homepage:            https://github.com/githubuser/DRAEquiv#readme
+homepage:            https://github.com/stersay/deq
 license:             BSD3
-author:              Author name here
-maintainer:          example@example.com
-copyright:           2017 Author name here
-category:            Web
+author:              Steven Ramsay
+maintainer:          steven.ramsay@bristol.ac.uk
+copyright:           2019 Steven Ramsay
+category:            Register Automata
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
 
-library
+executable deq
   hs-source-dirs:      src
-  exposed-modules:     Automata, PPerm, GenSystem, Bisim
-  build-depends:       base >= 4.7 && < 5
+  main-is:             Main.hs
+  other-modules:       Automata, Bisim, GenSystem, PPerm
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  build-depends:       base
                      , containers
+                     , text
+                     , mtl
+                     , bimap
+                     , cmdargs
+                     , xml-conduit
                      , HaskellForMaths
   default-language:    Haskell2010
 
-executable runner-exe
-  hs-source-dirs:      runner
+executable gen
+  hs-source-dirs:      generator
   main-is:             Main.hs
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , process
-                     , criterion
-  default-language:    Haskell2010
-
-executable stacks-exe
-  hs-source-dirs:      stacks
-  main-is:             Main.hs
-  other-modules:       Stack
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , containers
-                     , cmdargs
-                     , DRAEquiv
-  default-language:    Haskell2010
-
-executable one-exe
-  hs-source-dirs:      one
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , containers
-                     , cmdargs
-                     , DRAEquiv
-  default-language:    Haskell2010
-
-executable global-exe
-  hs-source-dirs:      global
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , containers
-                     , cmdargs
-                     , DRAEquiv
-  default-language:    Haskell2010
-
-test-suite DRAEquiv-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , DRAEquiv
-                     , HaskellForMaths
-                     , HUnit
-                     , containers
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+                     , hxt
+                     , random
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/DRAEquiv
+  location: https://github.com/stersay/deq
