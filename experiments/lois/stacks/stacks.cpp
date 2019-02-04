@@ -395,7 +395,7 @@ int main() {
 
     int i = 1;
     
-    while (i < 15) {
+    while (i < 11) {
         myautomaton target0;
             elem etrash = elof(0);
             elem epush = elof(1);
@@ -408,7 +408,7 @@ int main() {
             buildloopLR(target0, A, etrash, epush, epop, i);
         
         int j = 1;
-        while (j < 15) {
+        while (j < 11) {
             myautomaton target1;
                 elem etrash = elof(0);
                 elem epush = elof(1);
