@@ -1,7 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-export JVM_FLAGS="-Xmx1024m -ea -Djconstraints.extension.path=$DIR/lib -cp $DIR/lib/com.microsoft.z3.jar"
+export JVMFLAGS="-Xmx1024m -ea -Djconstraints.extension.path=$DIR/lib"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/home/cav/z3/build"
 
-java $JVMFLAGS -jar $DIR/lib/ralib-0.1-SNAPSHOT-jar-with-dependencies.jar mc "symbolic=false;spec=$1;impl=$2"
+export TIMEFORMAT="%U"
+time java $JVMFLAGS -jar $DIR/lib/ralib-0.1-SNAPSHOT-jar-with-dependencies.jar mc "symbolic=false;spec=$1;impl=$2" > /dev/null 2>&1
