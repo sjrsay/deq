@@ -25,9 +25,8 @@ main =
           "rlralib" -> return (mkRALibStack RL n)
           "gloloL" -> return (mkGloLo LFresh n)
           "gloloG" -> return (mkGloLo GFresh n)
-          "cpt"     -> 
-            do  p <- Random.randomRIO (0, List.product [1..n] - 1)
-                return (mkCpt p n)
+          "cpt"     -> return (mkCpt True n)
+          "cptR"     -> return (mkCpt False n)
           _         -> 
             do  putStrLn "The first argument must be one of \"lrstack\", ..."
                 Exit.exitFailure 
@@ -323,7 +322,7 @@ mkStack dir sz =
         selem "available-registers" [ register r | r <- f q ]
       ]
 
-mkCpt :: ArrowXml a => Int -> Int -> a XmlTree XmlTree
+mkCpt :: ArrowXml a => Bool -> Int -> a XmlTree XmlTree
 -- 
 mkCpt p sz =
   selem "dra" [
@@ -340,7 +339,7 @@ mkCpt p sz =
   
   where
     
-    regs = List.permutations [1..sz] !! p
+    regs = if p then [1..sz] else List.reverse [1..sz]
 
     endState = sz+1
 
@@ -360,9 +359,9 @@ mkCpt p sz =
       selem "transition" [
         selem "from" [ txt ("q" ++ show i) ],
         selem "input" [ txt "populate" ],
-        selem "op" [ txt "LFresh" ],
+        selem "op" [ txt "Read" ],
         selem "register" [ txt (show j) ],
-        selem "to" [ txt ("q" ++ show (i+1)) ]
+        selem "to" [ txt ("q" ++ show i) ]
       ]
 
     endFreshTransition i =
