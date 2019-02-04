@@ -117,7 +117,7 @@ module Main where
         let muq1 = Maybe.fromJust (IntMap.lookup q1 muq) in
         let muq2 = Maybe.fromJust (IntMap.lookup q2 muq) in
         if not (List.isSubsequenceOf (List.delete i muq2) muq1) then
-          Left ("Inconsistent transition: on a fresh transition, every active register of " ++ show (qDict Bimap.!> q2) ++ " must be either index " ++ show i ++ " or contained in the active registers of " ++ show (qDict Bimap.!> q1) ++ ".")
+          Left ("Inconsistent transition: on a fresh" ++ show i ++ "transition from " ++ show (qDict Bimap.!> q1) ++ " to " ++ show (qDict Bimap.!> q2) ++ ", every active register of " ++ show (qDict Bimap.!> q2) ++ " must be either index " ++ show i ++ " or contained in the active registers of " ++ show (qDict Bimap.!> q1) ++ ".")
         else
           Right ()
 
