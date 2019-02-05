@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<register-automaton>
+  <alphabet>
+    <inputs>
+      <symbol name="ISkip"/>
+      <symbol name="IPush">
+        <param type="int" name="p0"/>
+      </symbol>
+    </inputs>
+    <outputs>
+      <symbol name="OSkip"/>
+      <symbol name="OPop">
+        <param type="int" name="p0"/>
+      </symbol>
+    </outputs>
+  </alphabet>
+  <constants/>
+  <globals>
+    <variable type="int" name="r1">1</variable>
+    <variable type="int" name="r2">2</variable>
+    <variable type="int" name="r3">3</variable>
+    <variable type="int" name="r4">4</variable>
+    <variable type="int" name="r5">5</variable>
+    <variable type="int" name="r6">6</variable>
+    <variable type="int" name="r7">7</variable>
+    <variable type="int" name="r8">8</variable>
+    <variable type="int" name="r9">9</variable>
+    <variable type="int" name="r10">10</variable>
+    <variable type="int" name="r11">11</variable>
+    <variable type="int" name="r12">12</variable>
+    <variable type="int" name="r13">13</variable>
+    <variable type="int" name="r14">14</variable>
+  </globals>
+  <locations>
+    <location name="qF"/>
+    <location name="q1" initial="true"/>
+    <location name="q2"/>
+    <location name="q3"/>
+    <location name="q4"/>
+    <location name="q5"/>
+    <location name="q6"/>
+    <location name="q7"/>
+    <location name="q8"/>
+    <location name="q9"/>
+    <location name="q10"/>
+    <location name="q11"/>
+    <location name="q12"/>
+    <location name="q13"/>
+    <location name="q14"/>
+    <location name="q15"/>
+    <location name="q16"/>
+    <location name="q17"/>
+    <location name="q18"/>
+    <location name="q19"/>
+    <location name="q20"/>
+    <location name="q21"/>
+    <location name="q22"/>
+    <location name="q23"/>
+    <location name="q24"/>
+    <location name="q25"/>
+    <location name="q26"/>
+    <location name="q27"/>
+    <location name="q28"/>
+    <location name="q29"/>
+    <location name="q30"/>
+    <location name="q31"/>
+    <location name="q32"/>
+    <location name="q33"/>
+    <location name="q34"/>
+    <location name="q35"/>
+    <location name="q36"/>
+    <location name="q37"/>
+    <location name="q38"/>
+    <location name="q39"/>
+    <location name="q40"/>
+    <location name="q41"/>
+    <location name="q42"/>
+  </locations>
+  <transitions>
+    <transition from="q1" to="q3" symbol="IPush" params="p">
+      <guard/>
+      <assignments>
+        <assign to="r2">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q4" to="q6" symbol="IPush" params="p">
+      <guard>p != r2</guard>
+      <assignments>
+        <assign to="r3">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q7" to="q9" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3</guard>
+      <assignments>
+        <assign to="r4">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q10" to="q12" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4</guard>
+      <assignments>
+        <assign to="r5">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q13" to="q15" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5</guard>
+      <assignments>
+        <assign to="r6">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q16" to="q18" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6</guard>
+      <assignments>
+        <assign to="r7">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q19" to="q21" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7</guard>
+      <assignments>
+        <assign to="r8">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q22" to="q24" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7 &amp;&amp; p != r8</guard>
+      <assignments>
+        <assign to="r9">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q25" to="q27" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7 &amp;&amp; p != r8 &amp;&amp; p != r9</guard>
+      <assignments>
+        <assign to="r10">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q28" to="q30" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7 &amp;&amp; p != r8 &amp;&amp; p != r9 &amp;&amp; p != r10</guard>
+      <assignments>
+        <assign to="r11">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q31" to="q33" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7 &amp;&amp; p != r8 &amp;&amp; p != r9 &amp;&amp; p != r10 &amp;&amp; p != r11</guard>
+      <assignments>
+        <assign to="r12">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q34" to="q36" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7 &amp;&amp; p != r8 &amp;&amp; p != r9 &amp;&amp; p != r10 &amp;&amp; p != r11 &amp;&amp; p != r12</guard>
+      <assignments>
+        <assign to="r13">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q37" to="q39" symbol="IPush" params="p">
+      <guard>p != r2 &amp;&amp; p != r3 &amp;&amp; p != r4 &amp;&amp; p != r5 &amp;&amp; p != r6 &amp;&amp; p != r7 &amp;&amp; p != r8 &amp;&amp; p != r9 &amp;&amp; p != r10 &amp;&amp; p != r11 &amp;&amp; p != r12 &amp;&amp; p != r13</guard>
+      <assignments>
+        <assign to="r14">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q1" to="qF" symbol="IPush" params="p">
+      <guard/>
+    </transition>
+    <transition from="q4" to="qF" symbol="IPush" params="p">
+      <guard>p == r2</guard>
+    </transition>
+    <transition from="q7" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3</guard>
+    </transition>
+    <transition from="q10" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4</guard>
+    </transition>
+    <transition from="q13" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5</guard>
+    </transition>
+    <transition from="q16" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6</guard>
+    </transition>
+    <transition from="q19" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7</guard>
+    </transition>
+    <transition from="q22" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7 || p == r8</guard>
+    </transition>
+    <transition from="q25" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7 || p == r8 || p == r9</guard>
+    </transition>
+    <transition from="q28" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7 || p == r8 || p == r9 || p == r10</guard>
+    </transition>
+    <transition from="q31" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7 || p == r8 || p == r9 || p == r10 || p == r11</guard>
+    </transition>
+    <transition from="q34" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7 || p == r8 || p == r9 || p == r10 || p == r11 || p == r12</guard>
+    </transition>
+    <transition from="q37" to="qF" symbol="IPush" params="p">
+      <guard>p == r2 || p == r3 || p == r4 || p == r5 || p == r6 || p == r7 || p == r8 || p == r9 || p == r10 || p == r11 || p == r12 || p == r13</guard>
+    </transition>
+    <transition from="q4" to="q5" symbol="ISkip"/>
+    <transition from="q7" to="q8" symbol="ISkip"/>
+    <transition from="q10" to="q11" symbol="ISkip"/>
+    <transition from="q13" to="q14" symbol="ISkip"/>
+    <transition from="q16" to="q17" symbol="ISkip"/>
+    <transition from="q19" to="q20" symbol="ISkip"/>
+    <transition from="q22" to="q23" symbol="ISkip"/>
+    <transition from="q25" to="q26" symbol="ISkip"/>
+    <transition from="q28" to="q29" symbol="ISkip"/>
+    <transition from="q31" to="q32" symbol="ISkip"/>
+    <transition from="q34" to="q35" symbol="ISkip"/>
+    <transition from="q37" to="q38" symbol="ISkip"/>
+    <transition from="q40" to="q41" symbol="ISkip"/>
+    <transition from="q5" to="q1" symbol="OPop" params="r2"/>
+    <transition from="q8" to="q4" symbol="OPop" params="r3"/>
+    <transition from="q11" to="q7" symbol="OPop" params="r4"/>
+    <transition from="q14" to="q10" symbol="OPop" params="r5"/>
+    <transition from="q17" to="q13" symbol="OPop" params="r6"/>
+    <transition from="q20" to="q16" symbol="OPop" params="r7"/>
+    <transition from="q23" to="q19" symbol="OPop" params="r8"/>
+    <transition from="q26" to="q22" symbol="OPop" params="r9"/>
+    <transition from="q29" to="q25" symbol="OPop" params="r10"/>
+    <transition from="q32" to="q28" symbol="OPop" params="r11"/>
+    <transition from="q35" to="q31" symbol="OPop" params="r12"/>
+    <transition from="q38" to="q34" symbol="OPop" params="r13"/>
+    <transition from="q41" to="q37" symbol="OPop" params="r14"/>
+    <transition from="q3" to="q4" symbol="OSkip"/>
+    <transition from="q6" to="q7" symbol="OSkip"/>
+    <transition from="q9" to="q10" symbol="OSkip"/>
+    <transition from="q12" to="q13" symbol="OSkip"/>
+    <transition from="q15" to="q16" symbol="OSkip"/>
+    <transition from="q18" to="q19" symbol="OSkip"/>
+    <transition from="q21" to="q22" symbol="OSkip"/>
+    <transition from="q24" to="q25" symbol="OSkip"/>
+    <transition from="q27" to="q28" symbol="OSkip"/>
+    <transition from="q30" to="q31" symbol="OSkip"/>
+    <transition from="q33" to="q34" symbol="OSkip"/>
+    <transition from="q36" to="q37" symbol="OSkip"/>
+    <transition from="q39" to="q40" symbol="OSkip"/>
+    <transition from="q1" to="q2" symbol="ISkip"/>
+    <transition from="q2" to="q1" symbol="OSkip"/>
+    <transition from="qF" to="q1" symbol="OSkip"/>
+    <transition from="q40" to="q42" symbol="IPush" params="p">
+      <assignments>
+        <assign to="r1">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q42" to="q40" symbol="OSkip"/>
+  </transitions>
+</register-automaton>
+

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<register-automaton>
+  <alphabet>
+    <inputs>
+      <symbol name="ISkip"/>
+      <symbol name="IPush">
+        <param type="int" name="p0"/>
+      </symbol>
+    </inputs>
+    <outputs>
+      <symbol name="OSkip"/>
+      <symbol name="OPop">
+        <param type="int" name="p0"/>
+      </symbol>
+    </outputs>
+  </alphabet>
+  <constants/>
+  <globals>
+    <variable type="int" name="r1">1</variable>
+    <variable type="int" name="r2">2</variable>
+  </globals>
+  <locations>
+    <location name="qF"/>
+    <location name="q1" initial="true"/>
+    <location name="q2"/>
+    <location name="q3"/>
+    <location name="q4"/>
+    <location name="q5"/>
+    <location name="q6"/>
+  </locations>
+  <transitions>
+    <transition from="q1" to="q3" symbol="IPush" params="p">
+      <guard/>
+      <assignments>
+        <assign to="r2">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q1" to="qF" symbol="IPush" params="p">
+      <guard/>
+    </transition>
+    <transition from="q4" to="q5" symbol="ISkip"/>
+    <transition from="q5" to="q1" symbol="OPop" params="r2"/>
+    <transition from="q3" to="q4" symbol="OSkip"/>
+    <transition from="q1" to="q2" symbol="ISkip"/>
+    <transition from="q2" to="q1" symbol="OSkip"/>
+    <transition from="qF" to="q1" symbol="OSkip"/>
+    <transition from="q4" to="q6" symbol="IPush" params="p">
+      <assignments>
+        <assign to="r1">p</assign>
+      </assignments>
+    </transition>
+    <transition from="q6" to="q4" symbol="OSkip"/>
+  </transitions>
+</register-automaton>
+

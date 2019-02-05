@@ -1,0 +1,10 @@
+
+This directory contains the exact versions of the tools used in the benchmarking in the CAV'19 paper submission.
+
+* A zip archive of lois source code and, seperately, the code of a front end that runs the stacks benchmarks.
+
+* An archive of the nlambda source code and, separately, the code of a front end that runs the stacks benchmarks.
+
+* An archive of the ralib-eqcheck compiled java and, seperately, xml specifications of the stacks automata.
+
+With the deq benchmark generator included in the main repository, this should be sufficient, in principle, to reconstruct the benchmark results.  However, note that no scripting or other automation is included in this repository.  Fully automated reproduction of the benchmarks is available as part of a CAV'19 virtual machine image distributed at the time of submission.
