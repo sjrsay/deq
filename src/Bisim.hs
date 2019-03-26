@@ -57,9 +57,9 @@ succs a h (q1,s,q2) =
           rngp = toPPerm [1..2*r] (triangleLeft r (actv a ! q2) (rng s)) 
       in  domp `compseq` s `compseq` rngp
     reflect (q1, s, q2, h) = (q2, inverse s, q1, h) 
-    hasTagFreshMode t (q',t',m',_,_) = t == t' && (m' == LFresh || m' == GFresh)
-    hasTagMode t m (q',t',m',_,_) = t == t' && m == m'
-    hasTagModeIndex t m i (q',t',m',i',_) = t == t' && m == m' && i == i'
+    hasTagFreshMode t (_,t',m',_,_) = t == t' && (m' == LFresh || m' == GFresh)
+    hasTagMode t m (_,t',m',_,_) = t == t' && m == m'
+    hasTagModeIndex t m i (_,t',m',i',_) = t == t' && m == m' && i == i'
     
     -- The conditions on successors are given, as in the draft, for q1 and then we obtain
     -- the symmetric conditions for q2 by using reflect.
@@ -97,19 +97,23 @@ succs a h (q1,s,q2) =
                  let s' = shuffleDown q1' q2' (swap (i,i') `compseq` s)
                  return (ref (q1', s', q2', h))
             else 
-              do (_,_,_,j',q2') <- List.find (hasTagMode t LFresh) (trns a)
+              do (_,_,_,j',q2') <- List.find (hasTagMode t LFresh) q2trns
                  let s' = shuffleDown q1' q2' (swap (i,i') `compseq` s `compseq` swap (j,j'))
                  return (ref (q1', s', q2', h))
+      -- in case of a locally fresh transition, we do everything above from part (b) and, additionally,
+      -- everything from part (c) which we would do as if we had a globally fresh transition,
+      -- so let's pretend it is globally fresh and do part (c)
       in do gFreshSuccs <- trans ref s q2 q2trns (q1,t,GFresh,i,q1')
-            let [gFreshSucc] = gFreshSuccs -- there is only one, actually
+            let [gFreshSucc] = gFreshSuccs -- part (c) always yields exactly one successor, if it succeeds
             historicalSuccs <- 
+              -- now actually execute the part (b) conditions
               let historicalForQ1 = dom s \\ (actv a ! q1)
               in  mapM forHistorical historicalForQ1
             return (gFreshSucc : historicalSuccs)
             
     ---- (b), (c) q1 --t,i**--> q1'
     trans ref s q2 q2trns (q1,t,GFresh,i,q1') | Small hsz <- h =
-      do (_,_,l',j,q2') <- List.find (hasTagFreshMode t) (trns a)
+      do (_,_,l',j,q2') <- List.find (hasTagFreshMode t) q2trns
          if hsz < 2*r then 
            let s' = shuffleDown q1' q2' (swap (i,2*r) `compseq` remap (2*r) (2*r) s `compseq` swap (j,2*r))
            in  return [ref (q1', s', q2', Small (hsz+1))]
