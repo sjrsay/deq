@@ -3,6 +3,7 @@
 
 # In[2]:
 
+import sys
 
 tabs = { "transitions": 1, "transition": 2, 
         "assignments": 3, "assignment": 4, "assign": 5,
@@ -131,5 +132,5 @@ def tab(i):
 def reg(i):
     return "r"+str(i)
 
-print(cptRGen(2))
+print(cptRGen(int(sys.argv[1])))
 

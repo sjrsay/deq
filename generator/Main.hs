@@ -173,7 +173,7 @@ mkRALibStack dir sz =
   where
     
     pushes = [ pushTransition q | q <- [1..3*sz], q `mod` 3 == 1 ] -- last push is fake
-    fpushes = [ failedTransition  q | q <- [1..3*sz], q `mod` 3 == 1 ] -- last push is fake
+    fpushes = [ failedTransition  q | q <- [2..3*sz], q `mod` 3 == 1 ] -- last push is fake
     iskips = [ skipITransition q | q <- [4..3*(sz+1)], q `mod` 3 == 1 ] 
     pops   = [ popTransition q | q <- [4..3*(sz+1)], q `mod` 3 == 2 ] -- there is no pop initially
     oskips = [ skipOTransition q | q <- [1..3*sz], q `mod` 3 == 0 ]
