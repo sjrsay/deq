@@ -74,7 +74,7 @@ Transitions move the automaton from state to state and are specified by the tag 
 Each transition is listed as a child of this node using the tag `<transition>`.
 
 There are three kinds of transition, whose applicability is predicated upon the next letter `(t, a)` of the input and the state (or history) of the registers:
-* `Stored i` - is applicable if `a` is currently stored in register `i`.
+* `Read i` - is applicable if `a` is currently stored in register `i`.
 * `LFresh i` - is applicable if `a` is not currently stored in any register.
 * `GFresh i` - is applicable if `a` has _never_ been stored in any register.
 
@@ -85,7 +85,7 @@ Additionally, every transition must specify a tag `T` and, for a transition to b
 The XML following XML nodes are used to specify a transition: 
 * `<from>` : the starting state
 * `<input>` : the tag `T`
-* `<op>` : the mode, either `Stored`, `LFresh` or `GFresh`
+* `<op>` : the mode, either `Read`, `LFresh` or `GFresh`
 * `<register>` : the associated register `i`
 * `<to>` : the ending state
 
@@ -102,7 +102,7 @@ The XML following XML nodes are used to specify a transition:
 There are a number of requirements on well-formedness.  
 * To ensure that the automaton is _deterministic_ the following must be observed:    
   * For each combination of starting state and tag, there can be at most one transition whose mode is _either_ `LFresh` or `GFresh`.  
-  * For each combination of starting state, tag and register, there can be at most one transition with mode `Stored`.  
+  * For each combination of starting state, tag and register, there can be at most one transition with mode `Read`.  
 * To ensure that proper register discipline is followed:
-  * On a transition from state `q1` to state `q2` on `Stored i`, the available registers of state `q2` must be contained in the available registers of state `q1`.
+  * On a transition from state `q1` to state `q2` on `Read i`, the available registers of state `q2` must be contained in the available registers of state `q1`.
   * On a transition from state `q1` to state `q2` on `LFresh i` or `GFresh i`, each available register of state `q2` must either be `i` or an available register of state `q1`.
