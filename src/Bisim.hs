@@ -156,7 +156,7 @@ succs a h (q1,s,q2) =
     trans ref s q2 q2trns (q1,t,GFresh,i,q1') | Large <- h =
       do (_,_,_,j,q2') <- List.find (hasTagFreshMode t) q2trns
          let s' = restrict q1' q2' (remap i j s)
-         return [(ref (q1, s', q2', h))]
+         return [(ref (q1', s', q2', h))]
 
 
 raBisim :: Auto -> (State, PPerm, State) -> Bool
